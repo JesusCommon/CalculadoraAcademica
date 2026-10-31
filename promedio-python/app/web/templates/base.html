@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}Dashboard{% endblock %} · Academia 3.0</title>
+  <link rel="stylesheet" href="{{ request.url_for('static', path='css/estilos.css') }}">
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="marca">
+        <div class="escudo">A</div>
+        <div class="marca-textos">
+          <strong>ACADEMIA</strong>
+          <span>3.0 · Gestión académica</span>
+        </div>
+      </div>
+
+      <div class="sidebar-etiqueta">MENÚ PRINCIPAL</div>
+      <nav class="navegacion">
+        <a class="nav {% if activo == 'dashboard' %}activo{% endif %}" href="/">
+          <span class="nav-icono">◈</span> Dashboard
+        </a>
+        <a class="nav {% if activo == 'estudiantes' %}activo{% endif %}" href="/estudiantes">
+          <span class="nav-icono">▤</span> Estudiantes
+        </a>
+        <a class="nav {% if activo == 'materias' %}activo{% endif %}" href="/materias">
+          <span class="nav-icono">▦</span> Materias
+        </a>
+        <a class="nav {% if activo == 'calificaciones' %}activo{% endif %}" href="/calificaciones">
+          <span class="nav-icono">✎</span> Calificaciones
+        </a>
+        <a class="nav {% if activo == 'historial' %}activo{% endif %}" href="/historial">
+          <span class="nav-icono">◷</span> Historial
+        </a>
+        <a class="nav {% if activo == 'estadisticas' %}activo{% endif %}" href="/estadisticas">
+          <span class="nav-icono">◔</span> Estadísticas
+        </a>
+        <a class="nav {% if activo == 'configuracion' %}activo{% endif %}" href="/configuracion">
+          <span class="nav-icono">⚙</span> Configuración
+        </a>
+      </nav>
+
+      <div class="sidebar-pie">
+        <div class="estado-local"><span class="punto"></span> SQLite local</div>
+        <small>Datos compartidos con Tkinter</small>
+      </div>
+    </aside>
+
+    <div class="velo" id="velo" data-cerrar-menu></div>
+
+    <main class="contenido">
+      <header class="topbar">
+        <button class="menu-boton" id="menu-boton" type="button" aria-label="Abrir menú">☰</button>
+        <div class="topbar-titulos">
+          <h1>{% block encabezado %}Dashboard académico{% endblock %}</h1>
+          <p>{% block subencabezado %}Visión general del rendimiento institucional{% endblock %}</p>
+        </div>
+        <div class="topbar-acciones">
+          <span class="fecha">{{ hoy }}</span>
+          <a class="boton secundario" href="{{ request.url.path }}{% if request.url.query %}?{{ request.url.query }}{% endif %}">↻ Actualizar</a>
+        </div>
+      </header>
+
+      {% if mensaje %}
+      <div class="flash {{ 'error' if tipo == 'error' else 'ok' }}" id="flash">
+        <span>{{ mensaje }}</span>
+        <button type="button" class="cerrar-flash" aria-label="Cerrar">×</button>
+      </div>
+      {% endif %}
+
+      {% block contenido %}{% endblock %}
+
+      <footer class="pie">
+        Calculadora Académica 3.0 · FastAPI + SQLite · Uso local en 127.0.0.1
+      </footer>
+    </main>
+  </div>
+  <script src="{{ request.url_for('static', path='js/app.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block titulo %}Estudiantes{% endblock %}
+{% block encabezado %}Gestión de estudiantes{% endblock %}
+{% block subencabezado %}Altas, edición, búsqueda y baja lógica{% endblock %}
+
+{% block contenido %}
+<form class="barra-filtros" method="get" action="/estudiantes">
+  <div class="campo busqueda">
+    <label for="busqueda">Buscar estudiante</label>
+    <input id="busqueda" name="busqueda" type="search" value="{{ busqueda }}" placeholder="Nombre o código…">
+  </div>
+  <button class="boton secundario" type="submit">Buscar</button>
+  {% if busqueda %}<a class="boton secundario" href="/estudiantes">Limpiar</a>{% endif %}
+  <span class="crece"></span>
+  <a class="boton primario" href="/estudiantes/nuevo">+ Nuevo estudiante</a>
+</form>
+
+<section class="panel">
+  <div class="panel-cabecera">
+    <h2>Estudiantes activos</h2>
+    <span class="subtitulo">{{ filas|length }} registro(s)</span>
+  </div>
+  <div class="panel-cuerpo sin-relleno">
+    {% if filas %}
+    <div class="tabla-envoltura">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>Correo</th>
+            <th class="num">Notas</th>
+            <th class="num">Promedio</th>
+            <th>Estado</th>
+            <th style="text-align:right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for fila in filas %}
+          <tr>
+            <td class="codigo">{{ fila.estudiante.codigo }}</td>
+            <td><a href="/historial?estudiante_id={{ fila.estudiante.id }}">{{ fila.estudiante.nombre }}</a></td>
+            <td class="muted">{{ fila.estudiante.correo or "—" }}</td>
+            <td class="num">{{ fila.notas }}</td>
+            <td class="num"><strong>{{ fila.promedio|promedio }}</strong></td>
+            <td><span class="insignia {{ fila.estado|clase_estado }}">{{ fila.estado|estado_legible }}</span></td>
+            <td>
+              <div class="acciones-fila">
+                <a class="boton secundario pequeno" href="/estudiantes/{{ fila.estudiante.id }}/editar">Editar</a>
+                <form method="post" action="/estudiantes/{{ fila.estudiante.id }}/eliminar" data-confirmar="¿Eliminar a {{ fila.estudiante.nombre }} del listado activo? Sus calificaciones se conservan.">
+                  <button class="boton peligro pequeno" type="submit">Eliminar</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="vacio">
+      {% if busqueda %}No se encontraron estudiantes para “{{ busqueda }}”.{% else %}Aún no hay estudiantes registrados.{% endif %}
+      <br><a href="/estudiantes/nuevo">Registrar el primer estudiante</a>
+    </p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

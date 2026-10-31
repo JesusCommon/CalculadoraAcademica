@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block titulo %}Dashboard{% endblock %}
+{% block encabezado %}Dashboard académico{% endblock %}
+{% block subencabezado %}Visión general del rendimiento institucional{% endblock %}
+
+{% block contenido %}
+<section class="tarjetas">
+  <article class="tarjeta azul">
+    <span class="etiqueta">Estudiantes</span>
+    <strong class="valor">{{ resumen.total_estudiantes }}</strong>
+    <span class="pista">{{ resumen.aprobados }} aprobados · {{ resumen.reprobados }} reprobados</span>
+  </article>
+  <article class="tarjeta">
+    <span class="etiqueta">Materias</span>
+    <strong class="valor">{{ resumen.total_materias }}</strong>
+    <span class="pista">{{ resumen.total_periodos }} periodos académicos</span>
+  </article>
+  <article class="tarjeta azul">
+    <span class="etiqueta">Calificaciones</span>
+    <strong class="valor">{{ resumen.total_calificaciones }}</strong>
+    <span class="pista">{{ resumen.sin_notas }} estudiantes sin notas</span>
+  </article>
+  <article class="tarjeta verde">
+    <span class="etiqueta">Promedio general</span>
+    <strong class="valor">{{ resumen.promedio_general|promedio }}</strong>
+    <span class="pista">Sobre la escala institucional</span>
+  </article>
+</section>
+
+<div class="rejilla ancha">
+  <section class="panel">
+    <div class="panel-cabecera">
+      <h2>Promedio por materia</h2>
+      <span class="subtitulo">Notas activas de todos los periodos</span>
+    </div>
+    <div class="panel-cuerpo">
+      {% if resumen.por_materia %}
+      <div class="barras">
+        {% for punto in resumen.por_materia %}
+        <div class="barra-fila">
+          <span class="barra-etiqueta" title="{{ punto.etiqueta }}">{{ punto.etiqueta }}</span>
+          <div class="barra-pista">
+            <div class="barra-relleno" style="width: {{ (punto.valor / max_materia * 100)|round(1) }}%"></div>
+          </div>
+          <span class="barra-valor">{{ punto.valor|promedio }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="vacio">Aún no hay calificaciones registradas.</p>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-cabecera">
+      <h2>Distribución de estudiantes</h2>
+      <span class="subtitulo">Según su promedio general</span>
+    </div>
+    <div class="panel-cuerpo">
+      <div class="dona-zona">
+        <div class="dona" style="background: conic-gradient(#1E7F4F 0 {{ porcentajes.aprobados }}%, #B3261E {{ porcentajes.aprobados }}% {{ porcentajes.aprobados + porcentajes.reprobados }}%, #C9A227 {{ porcentajes.aprobados + porcentajes.reprobados }}% 100%);">
+          <div class="dona-centro">
+            <strong>{{ resumen.total_estudiantes }}</strong>
+            <span>estudiantes</span>
+          </div>
+        </div>
+        <ul class="leyenda">
+          <li><span class="muestra" style="background:#1E7F4F"></span> Aprobados <span class="cantidad">{{ resumen.aprobados }} · {{ porcentajes.aprobados }}%</span></li>
+          <li><span class="muestra" style="background:#B3261E"></span> Reprobados <span class="cantidad">{{ resumen.reprobados }} · {{ porcentajes.reprobados }}%</span></li>
+          <li><span class="muestra" style="background:#C9A227"></span> Sin notas <span class="cantidad">{{ resumen.sin_notas }} · {{ porcentajes.sin_notas }}%</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<section class="panel">
+  <div class="panel-cabecera">
+    <h2>Ranking de estudiantes</h2>
+    <a class="boton secundario pequeno" href="/estudiantes">Ver estudiantes →</a>
+  </div>
+  <div class="panel-cuerpo sin-relleno">
+    {% if ranking %}
+    <div class="tabla-envoltura">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Estudiante</th>
+            <th class="num">Notas</th>
+            <th class="num">Promedio</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for fila in ranking %}
+          <tr>
+            <td class="codigo">{{ fila.estudiante.codigo }}</td>
+            <td>{{ fila.estudiante.nombre }}</td>
+            <td class="num">{{ fila.notas }}</td>
+            <td class="num"><strong>{{ fila.promedio|promedio }}</strong></td>
+            <td><span class="insignia {{ fila.estado|clase_estado }}">{{ fila.estado|estado_legible }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="vacio">Aún no hay estudiantes registrados. Empieza creando uno desde la sección Estudiantes.</p>
+    {% endif %}
+  </div>
+</section>
+
+<section class="panel" style="margin-top:16px">
+  <div class="panel-cabecera">
+    <h2>Reportes y exportaciones</h2>
+    <span class="subtitulo">Archivos generados localmente desde SQLite</span>
+  </div>
+  <div class="panel-cuerpo">
+    <div class="reportes">
+      <div class="reporte">
+        <strong>Listado de estudiantes</strong>
+        <span>CSV, Excel y PDF con promedio y estado.</span>
+        <div class="acciones">
+          <a class="boton secundario pequeno" href="/exportar/estudiantes.csv">CSV</a>
+          <a class="boton secundario pequeno" href="/exportar/estudiantes.xlsx">Excel</a>
+          <a class="boton secundario pequeno" href="/exportar/estudiantes.pdf">PDF</a>
+        </div>
+      </div>
+      <div class="reporte">
+        <strong>Calificaciones</strong>
+        <span>Detalle por estudiante, materia y periodo.</span>
+        <div class="acciones">
+          <a class="boton secundario pequeno" href="/exportar/calificaciones.csv">CSV</a>
+          <a class="boton secundario pequeno" href="/exportar/calificaciones.xlsx">Excel</a>
+          <a class="boton secundario pequeno" href="/exportar/calificaciones.pdf">PDF</a>
+        </div>
+      </div>
+      <div class="reporte">
+        <strong>Preparación de reportes</strong>
+        <span>Las estadísticas se pueden imprimir o guardar como PDF desde el navegador.</span>
+        <div class="acciones">
+          <a class="boton secundario pequeno" href="/estadisticas">Ver estadísticas</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

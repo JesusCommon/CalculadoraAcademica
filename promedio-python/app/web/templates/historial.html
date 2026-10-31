@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block titulo %}Historial{% endblock %}
+{% block encabezado %}Historial académico{% endblock %}
+{% block subencabezado %}Trayectoria del estudiante por periodo y materia{% endblock %}
+
+{% block contenido %}
+<form class="barra-filtros" method="get" action="/historial">
+  <div class="campo busqueda">
+    <label for="busqueda">Buscar estudiante</label>
+    <input id="busqueda" name="busqueda" type="search" value="{{ busqueda }}" placeholder="Nombre o código…">
+  </div>
+  <button class="boton secundario" type="submit">Buscar</button>
+  {% if busqueda %}<a class="boton secundario" href="/historial">Limpiar</a>{% endif %}
+</form>
+
+<div class="dos-columnas">
+  <section class="panel">
+    <div class="panel-cabecera">
+      <h2>Estudiantes</h2>
+      <span class="subtitulo">{{ filas|length }}</span>
+    </div>
+    {% if filas %}
+    <div class="lista-estudiantes">
+      {% for fila in filas %}
+      <a class="{% if fila.estudiante.id == estudiante_id %}activo{% endif %}"
+         href="/historial?estudiante_id={{ fila.estudiante.id }}{% if busqueda %}&busqueda={{ busqueda|urlencode }}{% endif %}">
+        <span>{{ fila.estudiante.nombre }}</span>
+        <span class="prom">{{ fila.promedio|promedio }}</span>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="vacio">No hay estudiantes que coincidan con la búsqueda.</p>
+    {% endif %}
+  </section>
+
+  <div>
+    {% if detalle %}
+    <section class="panel">
+      <div class="cabecera-estudiante">
+        <div>
+          <h2>{{ detalle.estudiante.nombre }}</h2>
+          <div class="detalle">
+            {{ detalle.estudiante.codigo }} · {{ detalle.estudiante.correo or "sin correo" }} ·
+            {{ detalle.estudiante.origen.replace("_", " ") }}
+          </div>
+        </div>
+        <span class="insignia {{ detalle.estado|clase_estado }}">{{ detalle.estado|estado_legible }}</span>
+      </div>
+      <div class="panel-cuerpo">
+        <div class="tarjetas" style="margin-bottom:0">
+          <article class="tarjeta verde">
+            <span class="etiqueta">Promedio</span>
+            <strong class="valor">{{ detalle.promedio|promedio }}</strong>
+            <span class="pista">Promedio aritmético</span>
+          </article>
+          <article class="tarjeta azul">
+            <span class="etiqueta">Calificaciones</span>
+            <strong class="valor">{{ detalle.detalles|length }}</strong>
+            <span class="pista">Notas activas</span>
+          </article>
+          <article class="tarjeta">
+            <span class="etiqueta">Materias</span>
+            <strong class="valor">{{ detalle.por_materia|length }}</strong>
+            <span class="pista">Con notas registradas</span>
+          </article>
+          <article class="tarjeta">
+            <span class="etiqueta">Periodos</span>
+            <strong class="valor">{{ detalle.por_periodo|length }}</strong>
+            <span class="pista">Con actividad</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-top:16px">
+      <div class="panel-cabecera">
+        <h2>Calificaciones</h2>
+        <span class="subtitulo">Escala del periodo: mínimo {{ "%g"|format(detalle.escala.minima) }} · máximo {{ "%g"|format(detalle.escala.maxima) }} · aprueba {{ "%g"|format(detalle.escala.aprobacion) }}</span>
+      </div>
+      <div class="panel-cuerpo sin-relleno">
+        {% if detalle.detalles %}
+        <div class="tabla-envoltura">
+          <table class="tabla">
+            <thead>
+              <tr>
+                <th>Periodo</th>
+                <th>Materia</th>
+                <th class="num">Nota</th>
+                <th>Fecha</th>
+                <th>Descripción</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for nota in detalle.detalles %}
+              <tr>
+                <td class="muted">{{ nota.periodo_nombre }}</td>
+                <td>{{ nota.materia_nombre }}</td>
+                <td class="num"><strong>{{ nota.nota|nota }}</strong></td>
+                <td class="muted">{{ nota.fecha }}</td>
+                <td class="muted">{{ nota.descripcion or "—" }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p class="vacio">Este estudiante todavía no tiene calificaciones.</p>
+        {% endif %}
+      </div>
+    </section>
+
+    <div class="rejilla dos" style="margin-top:16px">
+      <section class="panel">
+        <div class="panel-cabecera">
+          <h2>Resumen por periodo</h2>
+        </div>
+        <div class="panel-cuerpo sin-relleno">
+          {% if detalle.por_periodo %}
+          <div class="tabla-envoltura">
+            <table class="tabla">
+              <thead>
+                <tr>
+                  <th>Periodo</th>
+                  <th class="num">Notas</th>
+                  <th class="num">Promedio</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for resumen in detalle.por_periodo %}
+                <tr>
+                  <td>{{ resumen.periodo.nombre }}</td>
+                  <td class="num">{{ resumen.notas }}</td>
+                  <td class="num"><strong>{{ resumen.promedio|promedio }}</strong></td>
+                  <td><span class="insignia {{ resumen.estado|clase_estado }}">{{ resumen.estado|estado_legible }}</span></td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <p class="vacio">Sin periodos con actividad.</p>
+          {% endif %}
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-cabecera">
+          <h2>Resumen por materia</h2>
+        </div>
+        <div class="panel-cuerpo sin-relleno">
+          {% if detalle.por_materia %}
+          <div class="tabla-envoltura">
+            <table class="tabla">
+              <thead>
+                <tr>
+                  <th>Código</th>
+                  <th>Materia</th>
+                  <th class="num">Notas</th>
+                  <th class="num">Promedio</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for resumen in detalle.por_materia %}
+                <tr>
+                  <td class="codigo">{{ resumen.codigo }}</td>
+                  <td>{{ resumen.nombre }}</td>
+                  <td class="num">{{ resumen.notas }}</td>
+                  <td class="num"><strong>{{ resumen.promedio|promedio }}</strong></td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <p class="vacio">Sin materias con notas.</p>
+          {% endif %}
+        </div>
+      </section>
+    </div>
+    {% else %}
+    <section class="panel">
+      <div class="panel-cuerpo">
+        <p class="vacio">Registra un estudiante para consultar su historial académico.</p>
+      </div>
+    </section>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

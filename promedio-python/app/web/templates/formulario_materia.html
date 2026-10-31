@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block titulo %}{% if materia %}Editar materia{% else %}Nueva materia{% endif %}{% endblock %}
+{% block encabezado %}{% if materia %}Editar materia{% else %}Nueva materia{% endif %}{% endblock %}
+{% block subencabezado %}{% if materia %}{{ materia.codigo }} · {{ materia.nombre }}{% else %}El código se guarda en mayúsculas{% endif %}{% endblock %}
+
+{% block contenido %}
+<section class="panel">
+  <div class="panel-cabecera">
+    <h2>Datos de la materia</h2>
+    <a class="boton secundario pequeno" href="/materias">← Volver al catálogo</a>
+  </div>
+  <div class="panel-cuerpo">
+    <form class="formulario" method="post" action="/materias/guardar">
+      <input type="hidden" name="identificador" value="{{ materia.id if materia else '' }}">
+
+      <div class="rejilla-campos">
+        <div class="campo">
+          <label for="codigo">Código</label>
+          <input id="codigo" name="codigo" type="text" required maxlength="30"
+                 value="{{ materia.codigo if materia else '' }}" autofocus
+                 placeholder="Ej. MAT-101">
+          <span class="ayuda">Identificador único de la materia.</span>
+        </div>
+        <div class="campo">
+          <label for="creditos">Créditos</label>
+          <input id="creditos" name="creditos" type="number" min="0" step="0.5"
+                 value="{{ '%g'|format(materia.creditos) if materia else '0' }}">
+          <span class="ayuda">Puede ser decimal; por defecto 0.</span>
+        </div>
+        <div class="campo ancho">
+          <label for="nombre">Nombre de la materia</label>
+          <input id="nombre" name="nombre" type="text" required maxlength="160"
+                 value="{{ materia.nombre if materia else '' }}"
+                 placeholder="Ej. Matemática I">
+        </div>
+      </div>
+
+      <div class="formulario-pie">
+        <a class="boton secundario" href="/materias">Cancelar</a>
+        <button class="boton primario" type="submit">
+          {% if materia %}Guardar cambios{% else %}Guardar materia{% endif %}
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}

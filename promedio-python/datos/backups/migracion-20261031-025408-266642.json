@@ -1,0 +1,63 @@
+{
+  "archivo": "C:\\Proyectos\\Pruebas\\promedio-python\\datos\\historial.json",
+  "sha256": "cf32636b7cc48ca8562d469652e9b3e1d46fc39191266b136ddfdcc80d9980b5",
+  "simulado": false,
+  "aplicada": true,
+  "ya_existia": false,
+  "total_leidos": 2,
+  "validos": 2,
+  "invalidos": 0,
+  "duplicados": 0,
+  "importados": 2,
+  "calificaciones_importadas": 9,
+  "estudiantes": [
+    {
+      "indice": 1,
+      "nombre": "Manuela",
+      "notas": [
+        4.0,
+        3.5,
+        2.0,
+        5.0,
+        5.0,
+        5.0,
+        1.0,
+        4.0
+      ],
+      "cantidad_notas": 8,
+      "promedio": 3.6875,
+      "estado": "APROBADO",
+      "codigo": "EST-000001",
+      "importado": true
+    },
+    {
+      "indice": 2,
+      "nombre": "Luisa",
+      "notas": [
+        2.9
+      ],
+      "cantidad_notas": 1,
+      "promedio": 2.9,
+      "estado": "REPROBADO",
+      "codigo": "EST-000002",
+      "importado": true
+    }
+  ],
+  "invalidos_detalle": [],
+  "duplicados_detalle": [],
+  "posibles_duplicados": [],
+  "respaldo_json": "C:\\Proyectos\\Pruebas\\promedio-python\\datos\\backups\\historial-20261031-025408-187018.json",
+  "respaldo_bd": null,
+  "verificacion": [
+    "EST-000001: promedio 3.687500 coincide.",
+    "EST-000001: 8 nota(s) conservada(s).",
+    "EST-000002: promedio 2.900000 coincide.",
+    "EST-000002: 1 nota(s) conservada(s).",
+    "Claves foráneas íntegras.",
+    "PRAGMA integrity_check = ok.",
+    "JSON original sin cambios (SHA-256 idéntico).",
+    "Respaldo del JSON verificado."
+  ],
+  "correcto": true,
+  "mensaje": "Migración aplicada y verificada. El JSON original sigue intacto."
+}

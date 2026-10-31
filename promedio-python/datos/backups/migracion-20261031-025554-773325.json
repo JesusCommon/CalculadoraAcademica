@@ -1,0 +1,25 @@
+{
+  "archivo": "C:\\Proyectos\\Pruebas\\promedio-python\\datos\\historial.json",
+  "sha256": "cf32636b7cc48ca8562d469652e9b3e1d46fc39191266b136ddfdcc80d9980b5",
+  "simulado": false,
+  "aplicada": false,
+  "ya_existia": true,
+  "total_leidos": 2,
+  "validos": 2,
+  "invalidos": 0,
+  "duplicados": 0,
+  "importados": 0,
+  "calificaciones_importadas": 0,
+  "estudiantes": [],
+  "invalidos_detalle": [],
+  "duplicados_detalle": [],
+  "posibles_duplicados": [],
+  "respaldo_json": "C:\\Proyectos\\Pruebas\\promedio-python\\datos\\backups\\historial-20261031-025554-731723.json",
+  "respaldo_bd": "C:\\Proyectos\\Pruebas\\promedio-python\\datos\\backups\\academico-20261031-025554-744208.db",
+  "verificacion": [
+    "Migración idempotente: no se duplicaron estudiantes ni notas.",
+    "El JSON original no se modificó."
+  ],
+  "correcto": true,
+  "mensaje": "Este archivo ya fue migrado antes (mismo SHA-256). No se insertaron registros nuevos."
+}

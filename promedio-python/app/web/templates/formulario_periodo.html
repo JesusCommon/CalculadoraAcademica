@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block titulo %}{% if periodo %}Editar periodo{% else %}Nuevo periodo{% endif %}{% endblock %}
+{% block encabezado %}{% if periodo %}Editar periodo{% else %}Nuevo periodo{% endif %}{% endblock %}
+{% block subencabezado %}{% if periodo %}{{ periodo.nombre }} · escala {{ "%g"|format(periodo.escala_min) }}–{{ "%g"|format(periodo.escala_max) }}{% else %}La escala queda congelada para este periodo{% endif %}{% endblock %}
+
+{% block contenido %}
+<section class="panel">
+  <div class="panel-cabecera">
+    <h2>Datos del periodo</h2>
+    <a class="boton secundario pequeno" href="/configuracion">← Volver a configuración</a>
+  </div>
+  <div class="panel-cuerpo">
+    <form class="formulario" method="post" action="/periodos/guardar">
+      <input type="hidden" name="identificador" value="{{ periodo.id if periodo else '' }}">
+
+      <div class="rejilla-campos">
+        <div class="campo ancho">
+          <label for="nombre">Nombre del periodo</label>
+          <input id="nombre" name="nombre" type="text" required maxlength="120"
+                 value="{{ periodo.nombre if periodo else '' }}" autofocus
+                 placeholder="Ej. 2026 · Primer semestre">
+        </div>
+        <div class="campo">
+          <label for="fecha_inicio">Fecha inicial (opcional)</label>
+          <input id="fecha_inicio" name="fecha_inicio" type="date"
+                 value="{{ periodo.fecha_inicio if periodo and periodo.fecha_inicio else '' }}">
+        </div>
+        <div class="campo">
+          <label for="fecha_fin">Fecha final (opcional)</label>
+          <input id="fecha_fin" name="fecha_fin" type="date"
+                 value="{{ periodo.fecha_fin if periodo and periodo.fecha_fin else '' }}">
+        </div>
+        <div class="campo">
+          <label for="minima">Nota mínima</label>
+          <input id="minima" name="minima" type="number" step="any" required value="{{ '%g'|format(escala.minima) }}">
+        </div>
+        <div class="campo">
+          <label for="maxima">Nota máxima</label>
+          <input id="maxima" name="maxima" type="number" step="any" required value="{{ '%g'|format(escala.maxima) }}">
+        </div>
+        <div class="campo">
+          <label for="aprobacion">Promedio de aprobación</label>
+          <input id="aprobacion" name="aprobacion" type="number" step="any" required value="{{ '%g'|format(escala.aprobacion) }}">
+        </div>
+        <div class="campo">
+          <label>Estado</label>
+          <label class="campo-casilla">
+            <input type="checkbox" name="activo" value="1" {% if not periodo or periodo.activo %}checked{% endif %}>
+            Periodo activo
+          </label>
+        </div>
+      </div>
+
+      <div class="formulario-pie">
+        <a class="boton secundario" href="/configuracion">Cancelar</a>
+        <button class="boton primario" type="submit">
+          {% if periodo %}Guardar cambios{% else %}Crear periodo{% endif %}
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}

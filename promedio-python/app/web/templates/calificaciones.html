@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block titulo %}Calificaciones{% endblock %}
+{% block encabezado %}Calificaciones{% endblock %}
+{% block subencabezado %}Registro de notas por estudiante, materia y periodo{% endblock %}
+
+{% block contenido %}
+<section class="panel" style="margin-bottom:16px">
+  <div class="panel-cabecera">
+    <h2>Registrar nueva calificación</h2>
+    <span class="subtitulo">La nota se valida contra la escala del periodo</span>
+  </div>
+  <div class="panel-cuerpo">
+    {% if estudiantes and materias and periodos %}
+    <form class="formulario" method="post" action="/calificaciones/nueva">
+      <div class="rejilla-campos tres">
+        <div class="campo">
+          <label for="estudiante_id">Estudiante</label>
+          <select id="estudiante_id" name="estudiante_id" required>
+            {% for estudiante in estudiantes %}
+            <option value="{{ estudiante.id }}">{{ estudiante.codigo }} · {{ estudiante.nombre }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="campo">
+          <label for="materia_id">Materia</label>
+          <select id="materia_id" name="materia_id" required>
+            {% for materia in materias %}
+            <option value="{{ materia.id }}">{{ materia.codigo }} · {{ materia.nombre }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="campo">
+          <label for="periodo_id">Periodo</label>
+          <select id="periodo_id" name="periodo_id" required>
+            {% for periodo in periodos %}
+            <option value="{{ periodo.id }}">{{ periodo.nombre }} ({{ "%g"|format(periodo.escala_min) }}–{{ "%g"|format(periodo.escala_max) }})</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="campo">
+          <label for="nota">Nota</label>
+          <input id="nota" name="nota" type="text" inputmode="decimal" required
+                 placeholder="Ej. 4.5" autocomplete="off">
+        </div>
+        <div class="campo">
+          <label for="fecha">Fecha</label>
+          <input id="fecha" name="fecha" type="date" value="{{ fecha_hoy }}">
+        </div>
+        <div class="campo">
+          <label for="descripcion">Descripción (opcional)</label>
+          <input id="descripcion" name="descripcion" type="text" maxlength="160"
+                 placeholder="Ej. Examen parcial">
+        </div>
+      </div>
+      <div class="formulario-pie">
+        <button class="boton primario" type="submit">Registrar calificación</button>
+      </div>
+    </form>
+    {% else %}
+    <p class="vacio">
+      Para registrar notas necesitas al menos un estudiante, una materia y un periodo activo.
+      <br>
+      <a href="/estudiantes/nuevo">Crear estudiante</a> ·
+      <a href="/materias/nuevo">Crear materia</a> ·
+      <a href="/periodos/nuevo">Crear periodo</a>
+    </p>
+    {% endif %}
+  </div>
+</section>
+
+<form class="barra-filtros" method="get" action="/calificaciones">
+  <div class="campo">
+    <label for="filtro_estudiante">Estudiante</label>
+    <select id="filtro_estudiante" name="estudiante_id" data-autofiltrar>
+      <option value="">Todos los estudiantes</option>
+      {% for estudiante in estudiantes %}
+      <option value="{{ estudiante.id }}" {% if filtro_estudiante == estudiante.id %}selected{% endif %}>{{ estudiante.codigo }} · {{ estudiante.nombre }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="campo">
+    <label for="filtro_periodo">Periodo</label>
+    <select id="filtro_periodo" name="periodo_id" data-autofiltrar>
+      <option value="">Todos los periodos</option>
+      {% for periodo in periodos %}
+      <option value="{{ periodo.id }}" {% if filtro_periodo == periodo.id %}selected{% endif %}>{{ periodo.nombre }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <button class="boton secundario" type="submit">Aplicar filtros</button>
+  <span class="crece"></span>
+  <div class="campo">
+    <label>Promedio del filtro</label>
+    <input type="text" value="{{ promedio_filtro|promedio }}" disabled>
+  </div>
+</form>
+
+<section class="panel">
+  <div class="panel-cabecera">
+    <h2>Calificaciones activas</h2>
+    <span class="subtitulo">{{ filas|length }} nota(s)</span>
+  </div>
+  <div class="panel-cuerpo sin-relleno">
+    {% if filas %}
+    <div class="tabla-envoltura">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Estudiante</th>
+            <th>Materia</th>
+            <th>Periodo</th>
+            <th class="num">Nota</th>
+            <th>Estado</th>
+            <th>Fecha</th>
+            <th>Descripción</th>
+            <th style="text-align:right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for fila in filas %}
+          <tr>
+            <td>{{ fila.detalle.estudiante_nombre }}</td>
+            <td>{{ fila.detalle.materia_nombre }}</td>
+            <td class="muted">{{ fila.detalle.periodo_nombre }}</td>
+            <td class="num"><strong>{{ fila.detalle.nota|nota }}</strong></td>
+            <td><span class="insignia {{ fila.estado|clase_estado }}">{{ fila.estado|estado_legible }}</span></td>
+            <td class="muted">{{ fila.detalle.fecha }}</td>
+            <td class="muted">{{ fila.detalle.descripcion or "—" }}</td>
+            <td>
+              <div class="acciones-fila">
+                <form method="post" action="/calificaciones/{{ fila.detalle.id }}/anular" data-confirmar="¿Anular la nota {{ fila.detalle.nota|nota }} de {{ fila.detalle.estudiante_nombre }} en {{ fila.detalle.materia_nombre }}? La nota se conserva en SQLite, pero dejará de promediar.">
+                  <button class="boton peligro pequeno" type="submit">Anular</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="vacio">No hay calificaciones para los filtros seleccionados.</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block titulo %}Materias{% endblock %}
+{% block encabezado %}Gestión de materias{% endblock %}
+{% block subencabezado %}Catálogo académico con créditos y baja lógica{% endblock %}
+
+{% block contenido %}
+<form class="barra-filtros" method="get" action="/materias">
+  <div class="campo busqueda">
+    <label for="busqueda">Buscar materia</label>
+    <input id="busqueda" name="busqueda" type="search" value="{{ busqueda }}" placeholder="Código o nombre…">
+  </div>
+  <button class="boton secundario" type="submit">Buscar</button>
+  {% if busqueda %}<a class="boton secundario" href="/materias">Limpiar</a>{% endif %}
+  <span class="crece"></span>
+  <a class="boton primario" href="/materias/nuevo">+ Nueva materia</a>
+</form>
+
+<section class="panel">
+  <div class="panel-cabecera">
+    <h2>Materias activas</h2>
+    <span class="subtitulo">{{ materias|length }} registro(s)</span>
+  </div>
+  <div class="panel-cuerpo sin-relleno">
+    {% if materias %}
+    <div class="tabla-envoltura">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Materia</th>
+            <th class="num">Créditos</th>
+            <th class="num">Calificaciones</th>
+            <th>Estado</th>
+            <th style="text-align:right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for materia in materias %}
+          <tr>
+            <td class="codigo">{{ materia.codigo }}</td>
+            <td>{{ materia.nombre }}</td>
+            <td class="num">{{ "%g"|format(materia.creditos) }}</td>
+            <td class="num">{{ conteo.get(materia.id, 0) }}</td>
+            <td><span class="insignia aprobado">Activa</span></td>
+            <td>
+              <div class="acciones-fila">
+                <a class="boton secundario pequeno" href="/materias/{{ materia.id }}/editar">Editar</a>
+                <form method="post" action="/materias/{{ materia.id }}/eliminar" data-confirmar="¿Eliminar la materia {{ materia.codigo }} · {{ materia.nombre }}? Sus calificaciones se conservan en el historial.">
+                  <button class="boton peligro pequeno" type="submit">Eliminar</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="vacio">
+      {% if busqueda %}No se encontraron materias para “{{ busqueda }}”.{% else %}Aún no hay materias registradas.{% endif %}
+      <br><a href="/materias/nuevo">Registrar la primera materia</a>
+    </p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

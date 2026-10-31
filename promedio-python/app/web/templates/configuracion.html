@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block titulo %}Configuración{% endblock %}
+{% block encabezado %}Configuración académica{% endblock %}
+{% block subencabezado %}Escala de notas y periodos con escala propia{% endblock %}
+
+{% block contenido %}
+<div class="rejilla ancha">
+  <section class="panel">
+    <div class="panel-cabecera">
+      <h2>Escala global</h2>
+    </div>
+    <div class="panel-cuerpo">
+      <p class="muted" style="margin-top:0">
+        Se aplica a los periodos nuevos. Los periodos existentes conservan la escala con la que fueron creados,
+        de modo que las notas históricas mantienen su validez.
+      </p>
+      <form class="formulario" method="post" action="/configuracion/escala">
+        <div class="rejilla-campos">
+          <div class="campo">
+            <label for="minima">Nota mínima</label>
+            <input id="minima" name="minima" type="number" step="any" required value="{{ '%g'|format(escala.minima) }}">
+          </div>
+          <div class="campo">
+            <label for="maxima">Nota máxima</label>
+            <input id="maxima" name="maxima" type="number" step="any" required value="{{ '%g'|format(escala.maxima) }}">
+          </div>
+          <div class="campo">
+            <label for="aprobacion">Promedio de aprobación</label>
+            <input id="aprobacion" name="aprobacion" type="number" step="any" required value="{{ '%g'|format(escala.aprobacion) }}">
+          </div>
+          <div class="campo">
+            <label for="decimales">Decimales al mostrar (0–6)</label>
+            <input id="decimales" name="decimales" type="number" min="0" max="6" step="1" required value="{{ escala.decimales }}">
+          </div>
+        </div>
+        <div class="formulario-pie">
+          <button class="boton primario" type="submit">Guardar escala</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-cabecera">
+      <h2>Reportes institucionales</h2>
+    </div>
+    <div class="panel-cuerpo">
+      <div class="reportes">
+        <div class="reporte">
+          <strong>Estudiantes</strong>
+          <span>Promedios y estado actual.</span>
+          <div class="acciones">
+            <a class="boton secundario pequeno" href="/exportar/estudiantes.csv">CSV</a>
+            <a class="boton secundario pequeno" href="/exportar/estudiantes.xlsx">Excel</a>
+            <a class="boton secundario pequeno" href="/exportar/estudiantes.pdf">PDF</a>
+          </div>
+        </div>
+        <div class="reporte">
+          <strong>Calificaciones</strong>
+          <span>Detalle académico completo.</span>
+          <div class="acciones">
+            <a class="boton secundario pequeno" href="/exportar/calificaciones.csv">CSV</a>
+            <a class="boton secundario pequeno" href="/exportar/calificaciones.xlsx">Excel</a>
+            <a class="boton secundario pequeno" href="/exportar/calificaciones.pdf">PDF</a>
+          </div>
+        </div>
+        <div class="reporte">
+          <strong>Estado del servicio</strong>
+          <span>Comprobación local de la base compartida.</span>
+          <div class="acciones">
+            <a class="boton secundario pequeno" href="/salud">Ver /salud</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<section class="panel">
+  <div class="panel-cabecera">
+    <h2>Periodos académicos</h2>
+    <a class="boton primario pequeno" href="/periodos/nuevo">+ Nuevo periodo</a>
+  </div>
+  <div class="panel-cuerpo sin-relleno">
+    {% if periodos %}
+    <div class="tabla-envoltura">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Periodo</th>
+            <th>Inicio</th>
+            <th>Fin</th>
+            <th class="num">Escala</th>
+            <th class="num">Aprueba</th>
+            <th>Estado</th>
+            <th style="text-align:right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for periodo in periodos %}
+          <tr>
+            <td><strong>{{ periodo.nombre }}</strong></td>
+            <td class="muted">{{ periodo.fecha_inicio or "—" }}</td>
+            <td class="muted">{{ periodo.fecha_fin or "—" }}</td>
+            <td class="num">{{ "%g"|format(periodo.escala_min) }}–{{ "%g"|format(periodo.escala_max) }}</td>
+            <td class="num">{{ "%g"|format(periodo.aprobacion_min) }}</td>
+            <td>
+              {% if periodo.activo %}
+              <span class="insignia aprobado">Activo</span>
+              {% else %}
+              <span class="insignia sin-notas">Inactivo</span>
+              {% endif %}
+            </td>
+            <td>
+              <div class="acciones-fila">
+                <a class="boton secundario pequeno" href="/periodos/{{ periodo.id }}/editar">Editar</a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="vacio">No hay periodos registrados. <a href="/periodos/nuevo">Crear el primer periodo</a>.</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

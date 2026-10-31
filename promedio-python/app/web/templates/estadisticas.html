@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block titulo %}Estadísticas{% endblock %}
+{% block encabezado %}Estadísticas académicas{% endblock %}
+{% block subencabezado %}Indicadores de rendimiento y comparación por periodo{% endblock %}
+
+{% block contenido %}
+<form class="barra-filtros" method="get" action="/estadisticas">
+  <div class="campo">
+    <label for="periodo_id">Periodo académico</label>
+    <select id="periodo_id" name="periodo_id" data-autofiltrar>
+      <option value="">Todos los periodos</option>
+      {% for periodo in periodos %}
+      <option value="{{ periodo.id }}" {% if filtro_periodo == periodo.id %}selected{% endif %}>{{ periodo.nombre }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <button class="boton secundario" type="submit">Actualizar</button>
+  <span class="crece"></span>
+  <a class="boton secundario" href="/exportar/estudiantes.pdf">Exportar PDF</a>
+  <a class="boton secundario" href="/exportar/calificaciones.xlsx">Exportar Excel</a>
+</form>
+
+<section class="tarjetas">
+  <article class="tarjeta verde">
+    <span class="etiqueta">Promedio general</span>
+    <strong class="valor">{{ resumen.promedio_general|promedio }}</strong>
+    <span class="pista">{{ resumen.total_calificaciones }} calificaciones</span>
+  </article>
+  <article class="tarjeta azul">
+    <span class="etiqueta">Aprobados</span>
+    <strong class="valor">{{ resumen.aprobados }}</strong>
+    <span class="pista">De {{ resumen.total_estudiantes }} estudiantes</span>
+  </article>
+  <article class="tarjeta rojo">
+    <span class="etiqueta">Reprobados</span>
+    <strong class="valor">{{ resumen.reprobados }}</strong>
+    <span class="pista">Bajo el umbral de aprobación</span>
+  </article>
+  <article class="tarjeta">
+    <span class="etiqueta">Sin notas</span>
+    <strong class="valor">{{ resumen.sin_notas }}</strong>
+    <span class="pista">Sin actividad registrada</span>
+  </article>
+</section>
+
+<div class="rejilla dos">
+  <section class="panel">
+    <div class="panel-cabecera">
+      <h2>Promedio por materia</h2>
+    </div>
+    <div class="panel-cuerpo">
+      {% if resumen.por_materia %}
+      <div class="barras">
+        {% for punto in resumen.por_materia %}
+        <div class="barra-fila">
+          <span class="barra-etiqueta" title="{{ punto.etiqueta }}">{{ punto.etiqueta }}</span>
+          <div class="barra-pista">
+            <div class="barra-relleno" style="width: {{ (punto.valor / max_materia * 100)|round(1) }}%"></div>
+          </div>
+          <span class="barra-valor">{{ punto.valor|promedio }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="vacio">No hay datos para el filtro seleccionado.</p>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-cabecera">
+      <h2>Promedio por periodo</h2>
+    </div>
+    <div class="panel-cuerpo">
+      {% if resumen.por_periodo %}
+      <div class="barras">
+        {% for punto in resumen.por_periodo %}
+        <div class="barra-fila">
+          <span class="barra-etiqueta" title="{{ punto.etiqueta }}">{{ punto.etiqueta }}</span>
+          <div class="barra-pista">
+            <div class="barra-relleno" style="width: {{ (punto.valor / max_periodo * 100)|round(1) }}%"></div>
+          </div>
+          <span class="barra-valor">{{ punto.valor|promedio }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="vacio">No hay datos para el filtro seleccionado.</p>
+      {% endif %}
+    </div>
+  </section>
+</div>
+
+<section class="panel">
+  <div class="panel-cabecera">
+    <h2>Rendimiento por estudiante</h2>
+    <span class="subtitulo">{{ ranking|length }} estudiantes · promedio {{ resumen.promedio_general|promedio }}</span>
+  </div>
+  <div class="panel-cuerpo sin-relleno">
+    {% if ranking %}
+    <div class="tabla-envoltura">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Estudiante</th>
+            <th class="num">Notas</th>
+            <th class="num">Promedio</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for fila in ranking %}
+          <tr>
+            <td class="codigo">{{ fila.estudiante.codigo }}</td>
+            <td><a href="/historial?estudiante_id={{ fila.estudiante.id }}">{{ fila.estudiante.nombre }}</a></td>
+            <td class="num">{{ fila.notas }}</td>
+            <td class="num"><strong>{{ fila.promedio|promedio }}</strong></td>
+            <td><span class="insignia {{ fila.estado|clase_estado }}">{{ fila.estado|estado_legible }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="vacio">No hay estudiantes para el filtro seleccionado.</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
