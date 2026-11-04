@@ -1,0 +1,27 @@
+@'
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+
+# Bases de datos y datos personales
+datos/*.db
+datos/*.sqlite
+datos/*.sqlite3
+datos/*.json
+datos/backups/
+
+# Configuración privada
+.env
+.env.*
+
+# Archivos temporales
+*.log
+.pytest_cache/
+.coverage
+'@ | Set-Content .gitignore
